@@ -44,7 +44,7 @@ h2{font-size:clamp(32px,8.5vw,38px)}
 .mix{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
 .mix h3{margin:0;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:400}
 .mix p{margin:0;font-size:16px;line-height:1.35}
-.btn[disabled]{opacity:.4;cursor:default}
+.btn[disabled]{opacity:1;background:var(--line);color:var(--muted);cursor:default}
 .next{position:sticky;bottom:max(12px,env(safe-area-inset-bottom,0px))}
 .count{font-size:16px;color:var(--muted);margin:0}
 .btn{font:inherit;font-weight:400;font-size:21px;letter-spacing:.02em;border-radius:14px;border:0;min-height:56px;padding:14px 20px;cursor:pointer;background:var(--on);color:var(--on-fg);width:100%}
@@ -70,6 +70,36 @@ ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
 .note{font-size:15px;color:var(--muted);text-align:center}
 .pill{display:flex;gap:8px;flex-wrap:wrap}
 .pill span{background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px}
+
+.tight{font-size:clamp(28px,7.5vw,34px)}
+.count{text-align:center}
+.jarwrap{width:min(56vw,230px,23vh);min-width:150px;aspect-ratio:300/430;margin:0 auto;color:var(--fg);border-radius:20px;transition:box-shadow .15s}
+.jarwrap.hot{box-shadow:0 0 0 5px var(--blue)}
+.jarsvg{width:100%;height:auto;display:block;overflow:visible}
+.lay.new{animation:rise .5s ease-out;transform-box:fill-box;transform-origin:bottom}
+@keyframes rise{from{transform:scaleY(0);opacity:.2}to{transform:scaleY(1);opacity:1}}
+.chunk.new{animation:drop .55s cubic-bezier(.3,1.5,.5,1)}
+@keyframes drop{from{transform:translateY(-110px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px}
+.chip{font:inherit;color:var(--fg);background:var(--panel);border:2px solid var(--line);border-radius:12px;min-height:64px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.chip:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.chip .nm{font-size:16px;line-height:1.1;text-align:center}
+.chip[aria-pressed="true"]{border-color:var(--blue);background:var(--chip)}
+.chip.sug:not([aria-pressed="true"]){border-style:dashed;border-color:var(--blue)}
+.chip .ck{position:absolute;top:3px;right:8px;color:var(--blue);font-weight:700;font-size:16px}
+.ghost{position:fixed;z-index:50;transform:translate(-50%,-70%);pointer-events:none;background:var(--panel);border:2px solid var(--blue);border-radius:999px;padding:8px 14px;display:flex;gap:8px;align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:17px;color:var(--fg)}
+.ghost .sw{width:22px;height:22px}
+.jnote{min-height:2.5em;margin:0;text-align:center;font-size:16px;color:var(--blue);line-height:1.3}
+.center{text-align:center;justify-content:center;align-items:center}
+.jarbtn{background:none;border:0;padding:0;margin:0 auto;width:min(70vw,300px);cursor:pointer;color:var(--fg);display:block}
+.shaking{animation:shk .6s}
+@keyframes shk{0%,100%{transform:none}15%{transform:translate(-10px,-6px) rotate(-8deg)}30%{transform:translate(10px,4px) rotate(8deg)}45%{transform:translate(-8px,-4px) rotate(-6deg)}60%{transform:translate(8px,3px) rotate(6deg)}80%{transform:translate(-3px,0) rotate(-2deg)}}
+.shbar{height:10px;background:var(--line);border-radius:999px;overflow:hidden;width:min(70vw,300px);margin:0 auto}
+.shbar i{display:block;height:100%;background:var(--red);transition:width .3s;width:0}
+.jarwrap.reveal{animation:popin .7s cubic-bezier(.3,1.4,.5,1);width:min(64vw,260px)}
+@keyframes popin{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+a.btn{display:flex;align-items:center;justify-content:center;text-decoration:none}
+@media (prefers-reduced-motion:reduce){.lay.new,.chunk.new,.shaking,.jarwrap.reveal{animation:none}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:wght@400;700&display=swap">
 <style>body{margin:0}</style></head><body><div id="app"></div>
@@ -117,9 +147,10 @@ function topbar(back,dots){
   return t;
 }
 function draw(){
-  app.textContent='';
-  if(S.screen==='home')home();else if(S.screen==='watch')watch();else if(S.screen==='pick')pick();else if(S.screen==='card')card();else result();
+  app.textContent='';app.style.gap=(S.screen==='pick'||S.screen==='shake')?'12px':'';
+  if(S.screen==='home')home();else if(S.screen==='watch')watch();else if(S.screen==='pick')pick();else if(S.screen==='shake')shake();else if(S.screen==='reveal')reveal();else if(S.screen==='card')card();else result();
 }
+function explore(){var a=el('a','btn alt','Explore Grey Goose');a.href='https://www.greygoose.com/';a.target='_blank';a.rel='noopener noreferrer';return a}
 function home(){
   var h=el('div','stack home');
   var im=el('img');im.src=LOGO;im.alt='Grey Goose';h.appendChild(im);
@@ -127,8 +158,9 @@ function home(){
   h.appendChild(el('h1',null,'Build your shrub'));
   h.appendChild(el('p','sub','Your jar plan and Grey Goose cocktails, made for your ingredients.'));
   var s=el('div','stack');
-  s.appendChild(btn('Start','',function(){S.sel={};go('pick',0)}));
+  s.appendChild(btn('Build my shrub','',function(){S.sel={};S.last=null;go('pick',0)}));
   s.appendChild(btn('Watch the demo','alt',function(){go('watch')}));
+  s.appendChild(explore());
   h.appendChild(s);app.appendChild(h);
 }
 function watch(){
@@ -136,7 +168,7 @@ function watch(){
   app.appendChild(el('h2',null,'Shrub basics'));
   var v=el('video');v.controls=true;v.setAttribute('playsinline','');v.preload='metadata';v.src='shrub.mp4';app.appendChild(v);
   app.appendChild(el('p','sub','Why shrubs exist, how to make one, and how to use it in Grey Goose cocktails. Turn your sound up for the music.'));
-  app.appendChild(btn('Build my shrub','',function(){S.sel={};go('pick',0)}));
+  app.appendChild(btn('Build my shrub','',function(){S.sel={};S.last=null;go('pick',0)}));
 }
 
 var FX={
@@ -203,57 +235,161 @@ function whyFor(t,chosen){
     if(p[1]===t&&chosen.indexOf(p[0])>=0)return p[2];}
   return null;
 }
+/* ---------- jar builder: drag or tap ingredients in, seal, shake, reveal ---------- */
+var LISTS=[PRODUCE,HERBS,SUGARS,VINS];
+var LOOK={apple:'#e8cf7e',pear:'#dccb7c',cranberry:'#b3203a',pomegranate:'#c2405e',beet:'#7d1f4d',carrot:'#e39a3d'};
+function itemOf(k){var r=null;LISTS.forEach(function(l){var f=find(l,k);if(f)r=f});return r}
+function hexRgb(h){h=h.replace('#','');return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)]}
+function shrubColor(){
+  var P=(S.sel.produce||[]),V=(S.sel.vinegar||[]);
+  if(!P.length)return '#e8cf7e';
+  var a=[0,0,0],tw=0,ws=P.map(function(k){var c=hexRgb(LOOK[k]);var w=900-c[0]-c[1]-c[2];tw+=w;return w});P.forEach(function(k,j){var c=hexRgb(LOOK[k]);for(var i=0;i<3;i++)a[i]+=c[i]*ws[j]/tw});
+  if(V.length){var v=hexRgb(itemOf(V[0]).c);for(var j=0;j<3;j++)a[j]=a[j]*.82+v[j]*.18}
+  return 'rgb('+a.map(Math.round).join(',')+')';
+}
+var SLOTS=[[84,372],[130,380],[178,374],[222,368],[104,336],[154,340],[204,334],[88,310],[138,306],[190,308],[232,318],[118,322]];
+var LAYER={produce:[304,396],sugar:[212,304],vinegar:[120,212]};
+function band(list,y0,y1,k){
+  var n=list.length,w=176/n,o='';
+  list.forEach(function(key,i){var it=itemOf(key);
+    o+='<rect class="lay'+(S.last===key?' new':'')+'" x="'+(62+w*i)+'" y="'+y0+'" width="'+w+'" height="'+(y1-y0)+'" fill="'+it.c+'"/>';
+  });
+  return o;
+}
+function jarSVG(o){
+  o=o||{};var sel=S.sel,mix=o.mix||0,s='';
+  s+='<svg viewBox="0 0 300 430" role="img" aria-label="Your jar" class="jarsvg"><defs><clipPath id="jc"><rect x="52" y="108" width="196" height="296" rx="30"/></clipPath></defs>';
+  s+='<g clip-path="url(#jc)"><rect x="52" y="108" width="196" height="296" fill="rgba(120,150,190,.08)"/>';
+  s+='<g style="opacity:'+(1-.9*mix)+'">';
+  if((sel.vinegar||[]).length)s+=band(sel.vinegar,LAYER.vinegar[0],LAYER.vinegar[1]);
+  if((sel.sugar||[]).length){s+=band(sel.sugar,LAYER.sugar[0],LAYER.sugar[1]);
+    for(var d=0;d<14;d++)s+='<circle cx="'+(70+(d*37)%160)+'" cy="'+(224+(d*29)%72)+'" r="2.4" fill="rgba(120,90,40,.28)"/>';}
+  if((sel.produce||[]).length)s+='<rect class="lay'+(S.last&&find(PRODUCE,S.last)?' new':'')+'" x="52" y="'+LAYER.produce[0]+'" width="196" height="92" fill="rgba(240,215,220,.55)"/>';
+  s+='</g>';
+  if(mix>0)s+='<rect x="52" y="120" width="196" height="284" fill="'+shrubColor()+'" opacity="'+(.92*mix)+'"/>';
+  var P=sel.produce||[];
+  P.forEach(function(k,pi){var it=itemOf(k);
+    for(var j=pi;j<SLOTS.length;j+=P.length){var p=SLOTS[j],r=15+((j*7)%5);
+      s+='<g class="chunk'+(S.last===k?' new':'')+'" style="transform-origin:'+p[0]+'px '+p[1]+'px"><circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+r+'" fill="'+it.c+'" opacity="'+(1-.35*mix)+'"/><circle cx="'+(p[0]-5)+'" cy="'+(p[1]-6)+'" r="3.5" fill="#fff" opacity=".35"/></g>';}
+  });
+  (sel.herb||[]).forEach(function(k,i){var it=itemOf(k),x=[96,150,206][i%3];
+    s+='<g class="chunk'+(S.last===k?' new':'')+'" style="transform-origin:'+x+'px 392px" opacity="'+(1-.3*mix)+'"><path d="M'+x+' 392 Q'+(x+8)+' 320 '+x+' 236" stroke="'+it.c+'" stroke-width="5" fill="none" stroke-linecap="round"/>';
+    [[-14,330],[14,300],[-14,276],[13,254]].forEach(function(l){s+='<ellipse cx="'+(x+l[0])+'" cy="'+l[1]+'" rx="13" ry="6.5" fill="'+it.c+'" transform="rotate('+(l[0]<0?-28:28)+' '+(x+l[0])+' '+l[1]+')"/>'});
+    s+='</g>';
+  });
+  s+='</g>';
+  if(!o.noGuide){
+    [['vinegar',LAYER.vinegar],['sugar',LAYER.sugar],['produce',LAYER.produce]].forEach(function(l){
+      var key=l[0]==='vinegar'?'vinegar':l[0]==='sugar'?'sugar':'produce';
+      if(!(sel[key]||[]).length)s+='<text x="150" y="'+((l[1][0]+l[1][1])/2+6)+'" text-anchor="middle" font-size="20" fill="currentColor" opacity=".38" font-family="Tinos,serif">'+l[0]+'</text>';
+    });
+    s+='<line x1="52" y1="212" x2="248" y2="212" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 6" opacity=".3"/><line x1="52" y1="304" x2="248" y2="304" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 6" opacity=".3"/>';
+  }
+  s+='<path d="M72 84 H228 Q232 84 232 90 V102 Q250 108 250 130 V378 Q250 406 222 406 H78 Q50 406 50 378 V130 Q50 108 68 102 V90 Q68 84 72 84 Z" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>';
+  s+='<g class="lid" style="transform:translateY('+(o.closed?0:-26)+'px) rotate('+(o.closed?0:-9)+'deg);transform-origin:150px 60px"><rect x="62" y="40" width="176" height="42" rx="9" fill="#2b3a63" stroke="currentColor" stroke-width="5"/><line x1="86" y1="48" x2="86" y2="74" stroke="#fff" stroke-width="3" opacity=".3"/><line x1="112" y1="48" x2="112" y2="74" stroke="#fff" stroke-width="3" opacity=".3"/><line x1="188" y1="48" x2="188" y2="74" stroke="#fff" stroke-width="3" opacity=".3"/><line x1="214" y1="48" x2="214" y2="74" stroke="#fff" stroke-width="3" opacity=".3"/></g>';
+  if(o.label)s+='<rect x="96" y="176" width="108" height="54" rx="6" fill="#fff" stroke="#2b3a63" stroke-width="3"/><text x="150" y="212" text-anchor="middle" font-size="24" font-weight="700" fill="#2b3a63" font-family="Tinos,serif">SHRUB</text>';
+  return s+'</svg>';
+}
+function stepsDots(i){return topbar(function(){if(S.step>0)go('pick',S.step-1);else go('home')},i)}
 function pick(){
   var st=STEPS[S.step];
-  app.appendChild(topbar(function(){if(S.step>0)go('pick',S.step-1);else go('home')},S.step));
-  app.appendChild(el('h2',null,st.q));
-  app.appendChild(el('p','count','Pick '+(st.min?'1':'0')+' to '+st.max+'. Mix them if you like.'+(allChosen().length?' Dashed tiles pair well with what you have.':'')));
-  var g=el('div','grid');
-  var mix=el('div');
-  var nx=btn('', 'next', function(){
-    if(S.step<STEPS.length-1)go('pick',S.step+1);else{S.tab='jar';go('result')}
+  app.appendChild(stepsDots(S.step));
+  app.appendChild(el('h2','tight',st.q));
+  var hint=el('p','count','');
+  var jw=el('div','jarwrap');jw.id='jarwrap';
+  var note=el('p','jnote','');
+  var g=el('div','chips');
+  var nx=btn('','next',function(){
+    if(S.step<STEPS.length-1){S.last=null;go('pick',S.step+1)}else{S.last=null;S.shakes=0;go('shake')}
   });
   function sync(){
     var n=(S.sel[st.id]||[]).length;
     nx.disabled=n<st.min;
-    nx.textContent=S.step===STEPS.length-1?'See my shrub':(n===0&&st.min===0?'Skip herbs':'Next');
+    nx.textContent=S.step===STEPS.length-1?'Seal the jar':(n===0&&st.min===0?'Skip herbs':'Next');
+    hint.textContent='Drag into the jar, or just tap. Pick '+(st.min?'1':'0')+' to '+st.max+'.'+(allChosen().length&&S.step>0?' Dashed ones pair well.':'');
   }
-  function build(){
+  function paint(msg){
+    jw.innerHTML=jarSVG();
+    note.textContent=msg||'';
+    sync();
+  }
+  function add(it,how){
+    var a=(S.sel[st.id]||[]).slice();
+    if(a.indexOf(it.k)>=0)return;
+    if(a.length>=st.max){paint('That is the most for this step. Tap one to take it out.');return}
+    a.push(it.k);S.sel[st.id]=a;S.last=it.k;build(FX[it.k]);
+  }
+  function remove(it){var a=(S.sel[st.id]||[]).filter(function(x){return x!==it.k});S.sel[st.id]=a;S.last=null;build('')}
+  function overJar(x,y){var r=jw.getBoundingClientRect(),m=24;return x>r.left-m&&x<r.right+m&&y>r.top-m&&y<r.bottom+m}
+  function build(msg){
     g.textContent='';
     var ch=allChosen();
     st.list.forEach(function(it){
       var on=(S.sel[st.id]||[]).indexOf(it.k)>=0;
       var why=on?null:whyFor(it.k,ch);
-      var b=el('button','tile'+(why?' sug':''));b.type='button';
-      b.setAttribute('aria-pressed',on);
+      var b=el('button','chip'+(why?' sug':''));b.type='button';b.setAttribute('aria-pressed',on);
+      b.setAttribute('aria-label',(on?'Remove ':'Add ')+it.n);
       var sw=el('span','sw');sw.style.background=it.c;b.appendChild(sw);
-      b.appendChild(el('span','ck','✓'));
-      b.appendChild(el('span','pw','Pairs well'));
-      var w=el('div');w.appendChild(el('b',null,it.n));w.appendChild(el('span','d',it.d));
-      if(why)w.appendChild(el('span','why',why));
-      var wrap=el('div');wrap.appendChild(w);b.appendChild(wrap);
-      b.addEventListener('click',function(){
-        var a=(S.sel[st.id]||[]).slice(),i=a.indexOf(it.k);
-        if(i>=0)a.splice(i,1);else if(a.length<st.max)a.push(it.k);
-        S.sel[st.id]=a;build();
+      b.appendChild(el('span','nm',it.n));
+      if(on)b.appendChild(el('span','ck','✓'));
+      var sx=0,sy=0,moved=false,ghost=null,down=false;
+      b.addEventListener('pointerdown',function(e){down=true;moved=false;sx=e.clientX;sy=e.clientY;try{b.setPointerCapture(e.pointerId)}catch(x){}});
+      b.addEventListener('pointermove',function(e){
+        if(!down)return;
+        if(!moved&&(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8)){
+          moved=true;ghost=el('div','ghost');var gs=el('span','sw');gs.style.background=it.c;ghost.appendChild(gs);ghost.appendChild(el('span',null,it.n));document.body.appendChild(ghost);
+        }
+        if(moved&&ghost){ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px';jw.classList.toggle('hot',overJar(e.clientX,e.clientY))}
       });
+      function end(e,cancel){
+        if(!down)return;down=false;
+        if(ghost){ghost.remove();ghost=null}
+        jw.classList.remove('hot');
+        if(cancel)return;
+        if(!moved){if(on)remove(it);else add(it)}
+        else if(!on&&overJar(e.clientX,e.clientY))add(it);
+      }
+      b.addEventListener('pointerup',function(e){end(e,false)});
+      b.addEventListener('pointercancel',function(e){end(e,true)});
+      b.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(on)remove(it);else add(it)}});
       g.appendChild(b);
     });
-    mix.textContent='';
-    var all=allChosen();
-    if(all.length){
-      var box=el('div','mix');box.appendChild(el('h3',null,'How it comes together'));
-      var lists=[PRODUCE,HERBS,SUGARS,VINS];
-      all.forEach(function(k){
-        var it=null;lists.forEach(function(l){var f=find(l,k);if(f)it=f});
-        var p=el('p');var nm=el('b',null,it.n+'. ');p.appendChild(nm);p.appendChild(document.createTextNode(FX[k]));box.appendChild(p);
-      });
-      mix.appendChild(box);
-    }
-    sync();
+    paint(msg);
   }
-  app.appendChild(g);app.appendChild(mix);
-  app.appendChild(nx);build();
+  app.appendChild(hint);app.appendChild(jw);app.appendChild(note);app.appendChild(g);app.appendChild(nx);
+  build('');
+}
+function shake(){
+  app.appendChild(topbar(function(){S.shakes=0;go('pick',3)}));
+  app.appendChild(el('h2','tight','Seal it and shake'));
+  var cnt=el('p','count','');
+  var jb=el('button','jarbtn');jb.type='button';jb.setAttribute('aria-label','Tap to shake the jar');
+  var bar=el('div','shbar');var fill=el('i');bar.appendChild(fill);
+  function paint(){var p=Math.min((S.shakes||0)/3,1);jb.innerHTML=jarSVG({closed:true,mix:p,noGuide:true});fill.style.width=(p*100)+'%';
+    cnt.textContent=S.shakes>=3?'Look at that.':(S.shakes?'Keep going, '+(3-S.shakes)+' more.':'Tap the jar to shake it.')}
+  jb.addEventListener('click',function(){
+    if((S.shakes||0)>=3)return;
+    S.shakes=(S.shakes||0)+1;
+    jb.classList.remove('shaking');void jb.offsetWidth;jb.classList.add('shaking');
+    paint();
+    if(S.shakes>=3)setTimeout(function(){go('reveal')},900);
+  });
+  app.appendChild(cnt);app.appendChild(jb);app.appendChild(bar);
+  paint();
+}
+function reveal(){
+  var c=chosen();
+  app.appendChild(topbar(function(){S.shakes=0;go('pick',3)}));
+  var head=el('div','stack center');head.appendChild(el('div','eyebrow','Your shrub'));head.appendChild(el('h2',null,c.name));app.appendChild(head);
+  var jw=el('div','jarwrap reveal');jw.innerHTML=jarSVG({closed:true,mix:1,noGuide:true,label:true});app.appendChild(jw);
+  var t=el('p','sub center','Expect '+jn(c.P.map(function(x){return x.taste}),'and')+(c.H.length?', with '+jn(c.H.map(function(x){return x.taste}),'and')+' notes':'')+'. It will look '+c.look+'.');
+  app.appendChild(t);
+  var pills=el('div','pill center');c.P.concat(c.H,c.Su,c.V).forEach(function(x){pills.appendChild(el('span',null,x.n))});app.appendChild(pills);
+  var s=el('div','stack');
+  s.appendChild(btn('See my plan and cocktails','',function(){S.tab='jar';go('result')}));
+  s.appendChild(btn('Save my card','alt',function(){S.back='reveal';go('card')}));
+  s.appendChild(btn('Make another','alt',function(){S.sel={};S.last=null;go('pick',0)}));
+  app.appendChild(s);
 }
 function jn(a,w){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' '+w+' '+a[a.length-1]}
 
@@ -298,13 +434,13 @@ function chosen(){
   var slow=P.filter(function(x){return !x.soft});
   var cnt={};P.forEach(function(x){cnt[x.fit]=(cnt[x.fit]||0)+1});
   var fit=P[0].fit;Object.keys(cnt).forEach(function(k){if(cnt[k]>cnt[fit])fit=k});
-  return {P:P,H:H,Su:Su,V:V,slow:slow.length>0,slowNames:slow.map(function(x){return x.n}),look:(slow[0]||P[0]).look,fit:fit,
+  return {P:P,H:H,Su:Su,V:V,slow:slow.length>0,slowNames:slow.map(function(x){return x.n}),look:(function(){var best=P[0],bw=-1;P.forEach(function(x){var c=hexRgb(LOOK[x.k]),w=900-c[0]-c[1]-c[2];if(w>bw){bw=w;best=x}});return best.look})(),fit:fit,
     name:P.concat(H).map(function(x){return x.n}).join(' + ')+' Shrub'};
 }
 function result(){
   var c=chosen();
   var days=c.slow?'7':'3 to 5';
-  app.appendChild(topbar(function(){go('pick',3)}));
+  app.appendChild(topbar(function(){go('reveal')}));
   var head=el('div','stack');head.appendChild(el('div','eyebrow','Your shrub'));head.appendChild(el('h2',null,c.name));
   var pills=el('div','pill');c.P.concat(c.H,c.Su,c.V).forEach(function(x){pills.appendChild(el('span',null,x.n))});head.appendChild(pills);
   app.appendChild(head);
@@ -339,8 +475,9 @@ function result(){
   app.appendChild(pn);
   var again=el('div','stack');
   again.appendChild(btn('Save my card','',function(){go('card')}));
-  again.appendChild(btn('Make another','alt',function(){S.sel={};go('pick',0)}));
+  again.appendChild(btn('Make another','alt',function(){S.sel={};S.last=null;go('pick',0)}));
   again.appendChild(btn('Watch the demo','alt',function(){go('watch')}));
+  again.appendChild(explore());
   app.appendChild(again);
   app.appendChild(el('p','note','Amounts are starting points. Taste and adjust. Please enjoy responsibly.'));
 }
@@ -393,7 +530,7 @@ function cardSVG(){
   return o;
 }
 function card(){
-  app.appendChild(topbar(function(){go('result')}));
+  app.appendChild(topbar(function(){go(S.back==='reveal'?'reveal':'result');S.back=null}));
   app.appendChild(el('h2',null,'Your card'));
   var holder=el('div');holder.style.cssText='border-radius:12px;overflow:hidden;border:2px solid var(--line);line-height:0';
   var im=el('img');im.alt='Your shrub card';im.style.cssText='width:100%;height:auto;display:block';
@@ -404,7 +541,7 @@ function card(){
   tmp.src=uri;
   holder.appendChild(im);app.appendChild(holder);
   app.appendChild(el('p','sub','Press and hold the card, then tap Save Image. Tag @greygoose and @fraicheprince when you share it.'));
-  app.appendChild(btn('Back to my shrub','alt',function(){go('result')}));
+  app.appendChild(btn('Back to my shrub','alt',function(){go(S.back==='reveal'?'reveal':'result');S.back=null}));
 }
 draw();
 </script>
