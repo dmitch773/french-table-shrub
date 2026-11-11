@@ -128,7 +128,7 @@ function watch(){
   app.appendChild(topbar(function(){go('home')}));
   app.appendChild(el('h2',null,'Shrub basics'));
   var v=el('video');v.controls=true;v.setAttribute('playsinline','');v.preload='metadata';v.src='shrub.mp4';app.appendChild(v);
-  app.appendChild(el('p','sub','4 minutes, with sound. Why shrubs exist, how to make one, and shrubs in Grey Goose cocktails.'));
+  app.appendChild(el('p','sub','Why shrubs exist, how to make one, and how to use it in Grey Goose cocktails. Turn your sound up for the music.'));
   app.appendChild(btn('Build my shrub','',function(){S.sel={};go('pick',0)}));
 }
 function pick(){
