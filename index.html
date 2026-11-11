@@ -118,7 +118,7 @@ function home(){
   var im=el('img');im.src=LOGO;im.alt='Grey Goose';h.appendChild(im);
   h.appendChild(el('div','eyebrow','The French Table'));
   h.appendChild(el('h1',null,'Build your shrub'));
-  h.appendChild(el('p','sub','Four taps. Get your jar plan and Grey Goose cocktails.'));
+  h.appendChild(el('p','sub','Your jar plan and Grey Goose cocktails, made for your ingredients.'));
   var s=el('div','stack');
   s.appendChild(btn('Start','',function(){S.sel={};go('pick',0)}));
   s.appendChild(btn('Watch the demo','alt',function(){go('watch')}));
@@ -165,6 +165,42 @@ function pick(){
   app.appendChild(nx);sync();
 }
 function jn(a,w){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' '+w+' '+a[a.length-1]}
+
+/* ---------- cocktail engine ---------- */
+var STYLES={
+ fizz:{style:'Fizz',spec:'1.5 oz Grey Goose, 0.75 oz shrub, top with soda. Ice, tall glass.',why:'Long, light and easy.',
+   w:{apple:3,carrot:3,mint:3,thyme:1,pear:1,champagne:2}},
+ grand:{style:'Grand Fizz',spec:'1 oz Grey Goose, 0.5 oz St-Germain, 0.75 oz shrub, top with soda. Ice, tall glass.',why:'Floral and bright, in the spirit of Le Grand Fizz.',
+   w:{pear:4,apple:2,mint:2,thyme:3,champagne:1,caster:1}},
+ sour:{style:'Sour',spec:'1.5 oz Grey Goose, 1 oz shrub, 0.5 oz dry vermouth. Shake with ice, strain.',why:'Bold and bright, with a clean finish.',
+   w:{cranberry:4,pomegranate:3,acv:2,brown:2,sage:2,apple:1,carrot:1}},
+ martini:{style:'Martini',spec:'1.75 oz Grey Goose, 0.33 oz dry vermouth, 1 dash orange bitters, 0.25 oz shrub. Stir with ice, strain into a chilled glass.',why:'Silky and spirit forward.',
+   w:{beet:4,pear:2,rosemary:3,sage:2,champagne:2,thyme:1,carrot:1}},
+ spritz:{style:'Spritz',spec:'1 oz Grey Goose, 1 oz shrub, top with 3 oz dry sparkling wine. Ice, wine glass.',why:'Festive and French, easy to sip.',
+   w:{cranberry:2,pomegranate:3,champagne:3,apple:1,caster:1,mint:1,rosemary:1}}
+};
+var GARN={apple:'a thin apple fan',pear:'a pear slice',cranberry:'three cranberries on a pick',pomegranate:'a few pomegranate arils',beet:'a thin beet curl',carrot:'a carrot ribbon'};
+function drinksFor(c){
+  var keys=[].concat(c.P,c.H,c.Su,c.V).map(function(x){return x.k});
+  var out=Object.keys(STYLES).map(function(id,i){
+    var d=STYLES[id],sc=0;keys.forEach(function(k){sc+=d.w[k]||0});
+    return {id:id,sc:sc,i:i,d:d};
+  });
+  out.sort(function(a,b){return b.sc-a.sc||a.i-b.i});
+  var tw=function(id){
+    var long=(id==='fizz'||id==='grand'||id==='spritz'),t=[];
+    if(c.V.some(function(x){return x.k==='champagne'}))t.push(long?'Champagne vinegar keeps it light, so a splash more soda or wine is fine.':'Champagne vinegar is delicate, so start with a little less shrub and taste.');
+    if(c.V.some(function(x){return x.k==='acv'}))t.push(long?'Cider vinegar is rounder, so a thin lemon wheel brightens it.':'Cider vinegar is rounder, so give it a little longer on ice for a softer edge.');
+    if(c.Su.some(function(x){return x.k==='brown'}))t.push('Brown sugar brings caramel, so a dash of orange bitters ties it in.');
+    if(c.Su.some(function(x){return x.k==='caster'}))t.push('Caster sugar stays bright, so a lemon twist lifts it.');
+    return t;
+  };
+  var base=c.P[0].n+(c.H[0]?' + '+c.H[0].n:'');
+  return out.slice(0,3).map(function(o,j){
+    var g=[GARN[c.P[0].k]];if(c.H[0])g.push('a sprig of '+c.H[0].n.toLowerCase());
+    return {n:base+' '+o.d.style,spec:o.d.spec,why:o.d.why,tweak:(function(){var t=tw(o.id);return t[j%t.length]})(),garn:'Garnish: '+g.join(' and ')+'.'};
+  });
+}
 function chosen(){
   var pick=function(ids,list){return (ids||[]).map(function(k){return find(list,k)})};
   var P=pick(S.sel.produce,PRODUCE),H=pick(S.sel.herb,HERBS),Su=pick(S.sel.sugar,SUGARS),V=pick(S.sel.vinegar,VINS);
@@ -203,13 +239,9 @@ function result(){
     pn.appendChild(el('h3',null,'Look and smell'));
     pn.appendChild(el('p',null,'Shake gently before you pour. Taste it each week, since the sharpness mellows as it sits. If it smells off or looks wrong, let it go.'));
   }else{
-    var D=[{k:'fizz',n:'Shrub Fizz',spec:'1.5 oz Grey Goose, 0.75 oz shrub, top with soda. Ice, tall glass.',why:'Long, light and easy.'},
-     {k:'sour',n:'Shrub Sour',spec:'1.5 oz Grey Goose, 1 oz shrub, 0.5 oz dry vermouth. Shake with ice, strain.',why:'Bold and bright.'},
-     {k:'martini',n:'Shrub Martini',spec:'1.75 oz Grey Goose, 0.33 oz dry vermouth, 1 dash orange bitters, 0.25 oz shrub. Stir with ice, strain into a chilled glass.',why:'Silky and spirit forward.'}];
-    D.sort(function(a,b){return (b.k===c.fit)-(a.k===c.fit)});
-    D.forEach(function(d,i){
+    drinksFor(c).forEach(function(d,i){
       var bx=el('div','drink');var t=el('b',null,d.n);if(i===0)t.appendChild(el('span','tag','Best match'));
-      bx.appendChild(t);bx.appendChild(el('p',null,d.spec));bx.appendChild(el('p','muted',d.why+(c.H.length?' Garnish with a sprig of '+c.H[0].n.toLowerCase()+'.':'')));pn.appendChild(bx);
+      bx.appendChild(t);bx.appendChild(el('p',null,d.spec));bx.appendChild(el('p','muted',d.why+' '+d.garn));bx.appendChild(el('p','muted',d.tweak));pn.appendChild(bx);
     });
     pn.appendChild(el('p','muted','Wild mix? Start with less shrub, taste, and add more.'));
   }
@@ -241,7 +273,7 @@ function sprigSVG(col){return SPRIG.replace('#5f9a55',col)}
 function cardSVG(){
   var c=chosen();
   var strain=c.slow?'Strain Nov 23':'Strain Nov 19 to 21';
-  var d=bestDrink({fit:c.fit});
+  var dd=drinksFor(c)[0],d=[dd.n,dd.spec];
   var o='<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" font-family="Georgia,\'Times New Roman\',serif">';
   o+='<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9d4e8"/><stop offset=".55" stop-color="#e6f1f8"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>';
   o+='<rect width="1080" height="1350" fill="url(#g)"/>';
@@ -285,4 +317,5 @@ function card(){
 }
 draw();
 </script>
+
 </body></html>
