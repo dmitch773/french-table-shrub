@@ -37,6 +37,13 @@ h2{font-size:clamp(32px,8.5vw,38px)}
 .tile[aria-pressed="true"]{border-color:var(--blue);background:var(--chip)}
 .tile .ck{position:absolute;top:10px;right:12px;font-size:20px;color:var(--blue);display:none;font-weight:700}
 .tile[aria-pressed="true"] .ck{display:block}
+.tile.sug:not([aria-pressed="true"]){border-style:dashed;border-color:var(--blue)}
+.tile .pw{position:absolute;top:14px;right:12px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:700;display:none}
+.tile.sug:not([aria-pressed="true"]) .pw{display:block}
+.tile .why{display:block;font-size:15px;line-height:1.3;color:var(--blue);margin-top:4px}
+.mix{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.mix h3{margin:0;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:400}
+.mix p{margin:0;font-size:16px;line-height:1.35}
 .btn[disabled]{opacity:.4;cursor:default}
 .next{position:sticky;bottom:max(12px,env(safe-area-inset-bottom,0px))}
 .count{font-size:16px;color:var(--muted);margin:0}
@@ -131,12 +138,78 @@ function watch(){
   app.appendChild(el('p','sub','Why shrubs exist, how to make one, and how to use it in Grey Goose cocktails. Turn your sound up for the music.'));
   app.appendChild(btn('Build my shrub','',function(){S.sel={};go('pick',0)}));
 }
+
+var FX={
+ apple:'Crisp and mellow. Keeps the body light and clear.',
+ pear:'Soft and floral. Gives a rounder, smoother body.',
+ cranberry:'Tart and bold. Its pectin thickens the shrub and turns it ruby.',
+ pomegranate:'Juicy with a tannic edge. Adds deep pink color and a lively tang.',
+ beet:'Earthy and sweet. Adds deep ruby color and a fuller, silky body.',
+ carrot:'Sweet and mellow. Adds golden color and a smooth, slightly thick body.',
+ rosemary:'Piney and savory. Adds aroma without changing the body.',
+ thyme:'Earthy and lightly floral. Adds a soft herbal lift.',
+ sage:'Warm and peppery. Adds a savory, cozy depth.',
+ mint:'Cool and fresh. Brightens the finish.',
+ caster:'Clean sweetness. Keeps the shrub bright and lighter in body.',
+ brown:'Caramel warmth. Makes it richer, with a little more body.',
+ acv:'Fruity and round. A mellow, rustic tang.',
+ champagne:'Light and crisp. A clean, delicate tang that lets the fruit lead.'
+};
+var PAIRS=[
+ ['apple','pear','Two orchard fruits blend into one smooth, mellow shrub.'],
+ ['apple','cranberry','Cranberry adds tartness and color to apple\'s gentle sweetness.'],
+ ['apple','carrot','Sweet and mellow together, like fresh pressed juice.'],
+ ['apple','rosemary','Rosemary adds a piney, savory edge to crisp apple.'],
+ ['apple','thyme','Thyme brings a light floral note to apple.'],
+ ['apple','sage','Sage echoes the warmth of baked apple.'],
+ ['apple','mint','Mint keeps apple bright and cool.'],
+ ['apple','acv','Cider vinegar and apple share a fruity roundness.'],
+ ['apple','brown','Brown sugar gives apple a caramel, apple pie warmth.'],
+ ['pear','pomegranate','Pomegranate\'s tang balances pear\'s soft sweetness.'],
+ ['pear','thyme','Thyme brings out pear\'s floral side.'],
+ ['pear','mint','Mint keeps pear fresh and light.'],
+ ['pear','sage','Sage and pear are a classic autumn match.'],
+ ['pear','rosemary','Rosemary adds a savory edge to pear.'],
+ ['pear','champagne','Champagne vinegar lets delicate pear shine.'],
+ ['pear','caster','Clean sugar keeps pear light and floral.'],
+ ['cranberry','pomegranate','Two tart, ruby fruits make a deep, bold shrub.'],
+ ['cranberry','rosemary','Rosemary softens cranberry\'s sharpness with a savory note.'],
+ ['cranberry','sage','Sage rounds out cranberry\'s tartness.'],
+ ['cranberry','brown','Brown sugar softens cranberry\'s tartness.'],
+ ['cranberry','champagne','Champagne vinegar keeps cranberry bright and clean.'],
+ ['pomegranate','mint','Mint cools pomegranate\'s tannic edge.'],
+ ['pomegranate','thyme','Thyme adds a soft herbal note to pomegranate.'],
+ ['pomegranate','champagne','Champagne vinegar keeps pomegranate crisp.'],
+ ['pomegranate','caster','Clean sugar keeps the juice bright.'],
+ ['beet','carrot','Two roots share an earthy sweetness. Give them the full 7 days.'],
+ ['beet','mint','Mint lifts beet\'s earthiness.'],
+ ['beet','sage','Earthy on earthy: sage makes beet deep and savory.'],
+ ['beet','thyme','Thyme adds a gentle herbal lift to beet.'],
+ ['beet','rosemary','Rosemary gives beet a piney, savory edge.'],
+ ['beet','acv','Cider vinegar\'s roundness suits earthy beet.'],
+ ['beet','brown','Brown sugar deepens beet\'s earthy sweetness.'],
+ ['carrot','thyme','Thyme adds a floral note to carrot\'s sweetness.'],
+ ['carrot','sage','Sage makes carrot warm and cozy.'],
+ ['carrot','rosemary','Rosemary adds a savory edge to carrot.'],
+ ['carrot','brown','Brown sugar gives carrot a caramelized sweetness.'],
+ ['carrot','acv','Cider vinegar balances carrot\'s sweetness.'],
+ ['caster','champagne','Clean and crisp together: a bright, light shrub.'],
+ ['brown','acv','Rich and rustic together: a warm, rounded shrub.']
+];
+function allChosen(){var a=[];Object.keys(S.sel).forEach(function(k){(S.sel[k]||[]).forEach(function(x){a.push(x)})});return a}
+function whyFor(t,chosen){
+  for(var i=0;i<PAIRS.length;i++){var p=PAIRS[i];
+    if(p[0]===t&&chosen.indexOf(p[1])>=0)return p[2];
+    if(p[1]===t&&chosen.indexOf(p[0])>=0)return p[2];}
+  return null;
+}
 function pick(){
   var st=STEPS[S.step];
   app.appendChild(topbar(function(){if(S.step>0)go('pick',S.step-1);else go('home')},S.step));
   app.appendChild(el('h2',null,st.q));
-  app.appendChild(el('p','count','Pick '+(st.min?'1':'0')+' to '+st.max+'. Mix them if you like.'));
+  app.appendChild(el('p','count','Pick '+(st.min?'1':'0')+' to '+st.max+'. Mix them if you like.'+(allChosen().length?' Dashed tiles pair well with what you have.':'')));
   var g=el('div','grid');
+  var mix=el('div');
   var nx=btn('', 'next', function(){
     if(S.step<STEPS.length-1)go('pick',S.step+1);else{S.tab='jar';go('result')}
   });
@@ -145,24 +218,42 @@ function pick(){
     nx.disabled=n<st.min;
     nx.textContent=S.step===STEPS.length-1?'See my shrub':(n===0&&st.min===0?'Skip herbs':'Next');
   }
-  st.list.forEach(function(it){
-    var b=el('button','tile');b.type='button';
-    b.setAttribute('aria-pressed',(S.sel[st.id]||[]).indexOf(it.k)>=0);
-    var sw=el('span','sw');sw.style.background=it.c;b.appendChild(sw);
-    b.appendChild(el('span','ck','✓'));
-    var w=el('div');w.appendChild(el('b',null,it.n));w.appendChild(el('span','d',it.d));
-    var wrap=el('div');wrap.appendChild(w);b.appendChild(wrap);
-    b.addEventListener('click',function(){
-      var a=(S.sel[st.id]||[]).slice(),i=a.indexOf(it.k);
-      if(i>=0)a.splice(i,1);else if(a.length<st.max)a.push(it.k);
-      S.sel[st.id]=a;
-      b.setAttribute('aria-pressed',a.indexOf(it.k)>=0);
-      sync();
+  function build(){
+    g.textContent='';
+    var ch=allChosen();
+    st.list.forEach(function(it){
+      var on=(S.sel[st.id]||[]).indexOf(it.k)>=0;
+      var why=on?null:whyFor(it.k,ch);
+      var b=el('button','tile'+(why?' sug':''));b.type='button';
+      b.setAttribute('aria-pressed',on);
+      var sw=el('span','sw');sw.style.background=it.c;b.appendChild(sw);
+      b.appendChild(el('span','ck','✓'));
+      b.appendChild(el('span','pw','Pairs well'));
+      var w=el('div');w.appendChild(el('b',null,it.n));w.appendChild(el('span','d',it.d));
+      if(why)w.appendChild(el('span','why',why));
+      var wrap=el('div');wrap.appendChild(w);b.appendChild(wrap);
+      b.addEventListener('click',function(){
+        var a=(S.sel[st.id]||[]).slice(),i=a.indexOf(it.k);
+        if(i>=0)a.splice(i,1);else if(a.length<st.max)a.push(it.k);
+        S.sel[st.id]=a;build();
+      });
+      g.appendChild(b);
     });
-    g.appendChild(b);
-  });
-  app.appendChild(g);
-  app.appendChild(nx);sync();
+    mix.textContent='';
+    var all=allChosen();
+    if(all.length){
+      var box=el('div','mix');box.appendChild(el('h3',null,'How it comes together'));
+      var lists=[PRODUCE,HERBS,SUGARS,VINS];
+      all.forEach(function(k){
+        var it=null;lists.forEach(function(l){var f=find(l,k);if(f)it=f});
+        var p=el('p');var nm=el('b',null,it.n+'. ');p.appendChild(nm);p.appendChild(document.createTextNode(FX[k]));box.appendChild(p);
+      });
+      mix.appendChild(box);
+    }
+    sync();
+  }
+  app.appendChild(g);app.appendChild(mix);
+  app.appendChild(nx);build();
 }
 function jn(a,w){return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' '+w+' '+a[a.length-1]}
 
