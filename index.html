@@ -100,6 +100,7 @@ ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
 @keyframes popin{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
 a.btn{display:flex;align-items:center;justify-content:center;text-decoration:none}
 @media (prefers-reduced-motion:reduce){.lay.new,.chunk.new,.shaking,.jarwrap.reveal{animation:none}}
+.share{background:var(--panel);border:2px solid var(--blue);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;text-align:center}.share p{margin:0;font-size:17px}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:wght@400;700&display=swap">
 <style>body{margin:0}</style></head><body><div id="app"></div>
@@ -387,7 +388,8 @@ function reveal(){
   var pills=el('div','pill center');c.P.concat(c.H,c.Su,c.V).forEach(function(x){pills.appendChild(el('span',null,x.n))});app.appendChild(pills);
   var s=el('div','stack');
   s.appendChild(btn('See my plan and cocktails','',function(){S.tab='jar';go('result')}));
-  s.appendChild(btn('Save my card','alt',function(){S.back='reveal';go('card')}));
+  s.appendChild(btn('Save and share my card','alt',function(){S.back='reveal';go('card')}));
+  s.appendChild(el('p','note','Post it with @greygoose @fraicheprince #MakeTimeWait'));
   s.appendChild(btn('Make another','alt',function(){S.sel={};S.last=null;go('pick',0)}));
   app.appendChild(s);
 }
@@ -474,7 +476,7 @@ function result(){
   }
   app.appendChild(pn);
   var again=el('div','stack');
-  again.appendChild(btn('Save my card','',function(){go('card')}));
+  again.appendChild(btn('Save and share my card','',function(){go('card')}));
   again.appendChild(btn('Make another','alt',function(){S.sel={};S.last=null;go('pick',0)}));
   again.appendChild(btn('Watch the demo','alt',function(){go('watch')}));
   again.appendChild(explore());
@@ -525,7 +527,7 @@ function cardSVG(){
   o+='<rect x="0" y="1190" width="1080" height="160" fill="#16254a"/>';
   o+='<text x="540" y="1248" text-anchor="middle" font-size="30" fill="#ffffff" font-weight="bold">Grey Goose French Table</text>';
   o+='<text x="540" y="1288" text-anchor="middle" font-size="26" fill="#cfe0f2">Monday, November 16, 2026  &#183;  The Drake Oak Brook</text>';
-  o+='<text x="540" y="1326" text-anchor="middle" font-size="26" fill="#ffffff">@greygoose  &#183;  @fraicheprince</text>';
+  o+='<text x="540" y="1326" text-anchor="middle" font-size="26" fill="#ffffff">@greygoose  &#183;  @fraicheprince  &#183;  #MakeTimeWait</text>';
   o+='</svg>';
   return o;
 }
@@ -540,7 +542,8 @@ function card(){
   tmp.onload=function(){try{var c=document.createElement('canvas');c.width=1080;c.height=1350;c.getContext('2d').drawImage(tmp,0,0,1080,1350);im.src=c.toDataURL('image/png')}catch(e){}};
   tmp.src=uri;
   holder.appendChild(im);app.appendChild(holder);
-  app.appendChild(el('p','sub','Press and hold the card, then tap Save Image. Tag @greygoose and @fraicheprince when you share it.'));
+  var sh=el('div','share');sh.appendChild(el('div','eyebrow','Share your card'));
+  sh.appendChild(el('p',null,'Press and hold the card, tap Save Image, then post it. Tag @greygoose and @fraicheprince and use #MakeTimeWait.'));app.appendChild(sh);
   app.appendChild(btn('Back to my shrub','alt',function(){go(S.back==='reveal'?'reveal':'result');S.back=null}));
 }
 draw();
