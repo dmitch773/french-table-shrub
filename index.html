@@ -101,6 +101,7 @@ ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
 a.btn{display:flex;align-items:center;justify-content:center;text-decoration:none}
 @media (prefers-reduced-motion:reduce){.lay.new,.chunk.new,.shaking,.jarwrap.reveal{animation:none}}
 .share{background:var(--panel);border:2px solid var(--blue);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;text-align:center}.share p{margin:0;font-size:17px}
+.chip .pg{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--red);line-height:1}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:wght@400;700&display=swap">
 <style>body{margin:0}</style></head><body><div id="app"></div>
@@ -307,7 +308,7 @@ function pick(){
     var n=(S.sel[st.id]||[]).length;
     nx.disabled=n<st.min;
     nx.textContent=S.step===STEPS.length-1?'Seal the jar':(n===0&&st.min===0?'Skip herbs':'Next');
-    hint.textContent='Drag into the jar, or just tap. Pick '+(st.min?'1':'0')+' to '+st.max+'.'+(allChosen().length&&S.step>0?' Dashed ones pair well.':'');
+    hint.textContent='Drag into the jar, or just tap. Pick '+(st.min?'1':'0')+' to '+st.max+'.'+(allChosen().length&&S.step>0?' Look for Pairs great.':'');
   }
   function paint(msg){
     jw.innerHTML=jarSVG();
@@ -333,6 +334,7 @@ function pick(){
       var sw=el('span','sw');sw.style.background=it.c;b.appendChild(sw);
       b.appendChild(el('span','nm',it.n));
       if(on)b.appendChild(el('span','ck','✓'));
+      if(why)b.appendChild(el('span','pg','Pairs great'));
       var sx=0,sy=0,moved=false,ghost=null,down=false;
       b.addEventListener('pointerdown',function(e){down=true;moved=false;sx=e.clientX;sy=e.clientY;try{b.setPointerCapture(e.pointerId)}catch(x){}});
       b.addEventListener('pointermove',function(e){
