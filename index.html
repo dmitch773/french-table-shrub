@@ -335,21 +335,22 @@ function meter(title){
 function shade(a,f){return 'rgb('+a.map(function(x){return Math.max(0,Math.min(255,Math.round(f>=0?x+(255-x)*f:x*(1+f))))}).join(',')+')'}
 function shrubSVG(){
   var c=shrubRGB(),top=shade(c,.28),mid=shade(c,0),bot=shade(c,-.32),i;
+  var JP='M72 84 H228 Q232 84 232 90 V102 Q250 108 250 130 V378 Q250 406 222 406 H78 Q50 406 50 378 V130 Q50 108 68 102 V90 Q68 84 72 84 Z';
   var s='<svg viewBox="0 0 300 430" role="img" aria-label="Your finished shrub" class="jarsvg"><defs>';
   s+='<linearGradient id="lq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+top+'"/><stop offset=".45" stop-color="'+mid+'"/><stop offset="1" stop-color="'+bot+'"/></linearGradient>';
   s+='<linearGradient id="gl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".25"/></linearGradient>';
-  s+='<clipPath id="bc"><path d="M112 66 H188 V112 Q188 140 214 158 Q250 182 250 226 V382 Q250 408 224 408 H76 Q50 408 50 382 V226 Q50 182 86 158 Q112 140 112 112 Z"/></clipPath></defs>';
-  s+='<ellipse cx="150" cy="414" rx="110" ry="10" fill="#000" opacity=".12"/>';
-  s+='<g clip-path="url(#bc)"><rect x="40" y="132" width="220" height="290" fill="url(#lq)"/>';
-  s+='<ellipse cx="150" cy="132" rx="38" ry="6" fill="'+shade(c,.5)+'" opacity=".75"/>';
+  s+='<clipPath id="jc2"><rect x="52" y="108" width="196" height="296" rx="30"/></clipPath></defs>';
+  s+='<g clip-path="url(#jc2)"><rect x="52" y="108" width="196" height="296" fill="rgba(120,150,190,.08)"/>';
+  s+='<rect x="52" y="150" width="196" height="260" fill="url(#lq)"/>';
+  s+='<ellipse cx="150" cy="150" rx="96" ry="6" fill="'+shade(c,.5)+'" opacity=".7"/>';
   for(i=0;i<9;i++){var bx=70+(i*53)%160,by=190+(i*71)%190;s+='<circle class="bub" style="animation-delay:'+(i*.35)+'s" cx="'+bx+'" cy="'+by+'" r="'+(2+i%3*1.6)+'" fill="#fff" opacity=".45"/>'}
-  s+='<rect x="64" y="170" width="22" height="210" rx="11" fill="url(#gl)" opacity=".9"/>';
-  s+='<rect x="212" y="200" width="9" height="150" rx="4.5" fill="#fff" opacity=".35"/>';
+  s+='<rect x="66" y="170" width="20" height="210" rx="10" fill="url(#gl)" opacity=".9"/>';
+  s+='<rect x="218" y="190" width="9" height="150" rx="4.5" fill="#fff" opacity=".35"/>';
   s+='<rect class="shine" x="-120" y="120" width="60" height="300" fill="#fff" opacity=".35" transform="skewX(-20)"/>';
   s+='</g>';
-  s+='<path d="M112 66 H188 V112 Q188 140 214 158 Q250 182 250 226 V382 Q250 408 224 408 H76 Q50 408 50 382 V226 Q50 182 86 158 Q112 140 112 112 Z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>';
-  s+='<rect x="104" y="52" width="92" height="20" rx="6" fill="#2b3a63" stroke="currentColor" stroke-width="4"/><rect x="118" y="26" width="64" height="30" rx="8" fill="#b88a55" stroke="currentColor" stroke-width="4"/>';
-  s+='<rect x="86" y="250" width="128" height="68" rx="5" fill="#fffaf0" stroke="#2b3a63" stroke-width="2.5"/><text x="150" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#2b3a63" font-family="Tinos,serif" letter-spacing="2">SHRUB</text><text x="150" y="304" text-anchor="middle" font-size="11" fill="#a31d33" font-family="Tinos,serif" letter-spacing="1">THE FRENCH TABLE</text>';
+  s+='<path d="'+JP+'" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>';
+  s+='<g><rect x="62" y="40" width="176" height="42" rx="9" fill="#2b3a63" stroke="currentColor" stroke-width="5"/><line x1="86" y1="48" x2="86" y2="74" stroke="#fff" stroke-width="3" opacity=".3"/><line x1="112" y1="48" x2="112" y2="74" stroke="#fff" stroke-width="3" opacity=".3"/><line x1="188" y1="48" x2="188" y2="74" stroke="#fff" stroke-width="3" opacity=".3"/><line x1="214" y1="48" x2="214" y2="74" stroke="#fff" stroke-width="3" opacity=".3"/></g>';
+  s+='<rect x="86" y="236" width="128" height="68" rx="6" fill="#fffaf0" stroke="#2b3a63" stroke-width="2.5"/><text x="150" y="268" text-anchor="middle" font-size="24" font-weight="700" fill="#2b3a63" font-family="Tinos,serif" letter-spacing="2">SHRUB</text><text x="150" y="290" text-anchor="middle" font-size="11" fill="#a31d33" font-family="Tinos,serif" letter-spacing="1">THE FRENCH TABLE</text>';
   return s+'</svg>';
 }
 function stepsDots(i){return topbar(function(){if(S.step>0)go('pick',S.step-1);else go('home')},i)}
