@@ -115,6 +115,9 @@ a.btn{display:flex;align-items:center;justify-content:center;text-decoration:non
 .meter .fl{display:block;height:100%;width:0;background:var(--blue);transition:width .6s,background .6s}
 .meter .m.bump{color:var(--red);animation:bmp .7s}.meter .m.bump .fl{background:var(--red)}
 @keyframes bmp{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+body::before,body::after{content:"";position:fixed;left:0;right:0;height:12px;z-index:20;background:linear-gradient(90deg,#2f6db5 0 33.34%,#e6ecf5 33.34% 66.67%,#a31d33 66.67% 100%);pointer-events:none}
+body::before{top:0}body::after{bottom:0}
+body{padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 </style>
 
 <style>body{margin:0}</style></head><body><div id="app"></div>
@@ -579,6 +582,7 @@ function cardSVG(){
   var o='<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" font-family="Jost,\'Helvetica Neue\',Arial,sans-serif">';
   o+='<defs><style>'+fontCSS(['pf4','pfi','pf7','j4','j5','j6'])+'.pf{font-family:\'Playfair Display\',Georgia,serif}.lab{font-weight:600}</style><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a9d4e8"/><stop offset=".4" stop-color="#e6f1f8"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs>';
   o+='<rect width="1080" height="1350" fill="url(#g)"/>';
+  o+='<rect width="360" height="16" fill="#2f6db5"/><rect x="360" width="360" height="16" fill="#e6ecf5"/><rect x="720" width="360" height="16" fill="#a31d33"/>';
   o+='<image href="'+LOGO+'" x="440" y="22" width="200" height="119"/>';
   o+='<text class="lab" x="540" y="176" text-anchor="middle" font-size="22" letter-spacing="8" fill="#a31d33">MY FRENCH TABLE SHRUB</text>';
   var icons=c.P.map(function(x){return ICON[x.k]}).concat(c.H.map(function(x){return sprigSVG(x.c)}));
@@ -610,7 +614,7 @@ function cardSVG(){
   o+='<text class="lab" x="540" y="'+(cy+6)+'" text-anchor="middle" font-size="20" letter-spacing="7" fill="#a31d33">MAKE IT WITH GREY GOOSE</text>';
   o+='<text class="pf" x="540" y="'+(cy+46)+'" text-anchor="middle" font-size="36" font-weight="700" fill="#16254a">'+esc(d[0])+'</text>';
   wrap(d[1],70).slice(0,2).forEach(function(l,i){o+='<text x="540" y="'+(cy+80+i*28)+'" text-anchor="middle" font-size="23" fill="#34456e">'+esc(l)+'</text>'});
-  o+='<rect x="0" y="1262" width="1080" height="88" fill="#16254a"/>';
+  o+='<rect x="0" y="1246" width="360" height="16" fill="#2f6db5"/><rect x="360" y="1246" width="360" height="16" fill="#e6ecf5"/><rect x="720" y="1246" width="360" height="16" fill="#a31d33"/><rect x="0" y="1262" width="1080" height="88" fill="#16254a"/>';
   o+='<text x="540" y="1300" text-anchor="middle" font-size="23" letter-spacing="1" fill="#cfe0f2">Grey Goose French Table  &#183;  Nov 16, 2026  &#183;  The Drake Oak Brook</text>';
   o+='<text class="lab" x="540" y="1334" text-anchor="middle" font-size="24" fill="#ffffff">@greygoose  &#183;  @fraicheprince  &#183;  #MakeTimeWait</text>';
   o+='</svg>';
