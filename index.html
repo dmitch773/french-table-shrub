@@ -73,7 +73,7 @@ ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
 
 .tight{font-size:clamp(28px,7.5vw,34px)}
 .count{text-align:center}
-.jarwrap{width:min(56vw,230px,23vh);min-width:150px;aspect-ratio:300/430;margin:0 auto;color:var(--fg);border-radius:20px;transition:box-shadow .15s}
+.jarwrap{width:min(52vw,210px,21vh);min-width:128px;aspect-ratio:300/430;margin:0 auto;color:var(--fg);border-radius:20px;transition:box-shadow .15s}
 .jarwrap.hot{box-shadow:0 0 0 5px var(--blue)}
 .jarsvg{width:100%;height:auto;display:block;overflow:visible}
 .lay.new{animation:rise .5s ease-out;transform-box:fill-box;transform-origin:bottom}
@@ -102,6 +102,15 @@ a.btn{display:flex;align-items:center;justify-content:center;text-decoration:non
 @media (prefers-reduced-motion:reduce){.lay.new,.chunk.new,.shaking,.jarwrap.reveal{animation:none}}
 .share{background:var(--panel);border:2px solid var(--blue);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;text-align:center}.share p{margin:0;font-size:17px}
 .chip .pg{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--red);line-height:1}
+.meterbox{display:flex;flex-direction:column;gap:6px}
+.mtop{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--blue)}
+.mdot{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);transition:background .6s}
+.meter{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.meter .m{display:flex;flex-direction:column;gap:3px;text-align:center;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.meter .tr{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.meter .fl{display:block;height:100%;width:0;background:var(--blue);transition:width .6s,background .6s}
+.meter .m.bump{color:var(--red);animation:bmp .7s}.meter .m.bump .fl{background:var(--red)}
+@keyframes bmp{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:wght@400;700&display=swap">
 <style>body{margin:0}</style></head><body><div id="app"></div>
@@ -268,7 +277,7 @@ function jarSVG(o){
     for(var d=0;d<14;d++)s+='<circle cx="'+(70+(d*37)%160)+'" cy="'+(224+(d*29)%72)+'" r="2.4" fill="rgba(120,90,40,.28)"/>';}
   if((sel.produce||[]).length)s+='<rect class="lay'+(S.last&&find(PRODUCE,S.last)?' new':'')+'" x="52" y="'+LAYER.produce[0]+'" width="196" height="92" fill="rgba(240,215,220,.55)"/>';
   s+='</g>';
-  if(mix>0)s+='<rect x="52" y="120" width="196" height="284" fill="'+shrubColor()+'" opacity="'+(.92*mix)+'"/>';
+  var tv=mix>0?.92*mix:(o.tint||0);if(tv>0)s+='<rect x="52" y="120" width="196" height="284" fill="'+shrubColor()+'" opacity="'+tv+'"/>';
   var P=sel.produce||[];
   P.forEach(function(k,pi){var it=itemOf(k);
     for(var j=pi;j<SLOTS.length;j+=P.length){var p=SLOTS[j],r=15+((j*7)%5);
@@ -292,6 +301,22 @@ function jarSVG(o){
   if(o.label)s+='<rect x="96" y="176" width="108" height="54" rx="6" fill="#fff" stroke="#2b3a63" stroke-width="3"/><text x="150" y="212" text-anchor="middle" font-size="24" font-weight="700" fill="#2b3a63" font-family="Tinos,serif">SHRUB</text>';
   return s+'</svg>';
 }
+
+var TASTE={apple:{f:.6,t:.35,s:.4},pear:{f:.6,t:.2,s:.5},cranberry:{f:.7,t:.9,s:.1},pomegranate:{f:.8,t:.6,s:.35,e:.15},beet:{e:.9,s:.4,f:.1},carrot:{e:.45,s:.6,f:.2},rosemary:{h:.9,e:.15},thyme:{h:.7,e:.3},sage:{h:.8,e:.35},mint:{h:.8,t:.1},caster:{s:.55},brown:{s:.55,e:.2},acv:{t:.5,f:.2,e:.1},champagne:{t:.4,f:.15}};
+var AX=[['f','Fruity'],['t','Tart'],['s','Sweet'],['h','Herbal'],['e','Earthy']];
+function profile(){var v={f:0,t:0,s:0,h:0,e:0};allChosen().forEach(function(k){var t=TASTE[k]||{};for(var a in t)v[a]+=t[a]});for(var a in v)v[a]=Math.min(1,v[a]/1.3);return v}
+function meter(title){
+  var w=el('div','meterbox'),top=el('div','mtop'),sw=el('span','mdot'),tt=el('span',null,title);top.appendChild(sw);top.appendChild(tt);w.appendChild(top);
+  var g=el('div','meter'),cols={},prev={};
+  AX.forEach(function(a){var c=el('div','m'),l=el('span',null,a[1]),tr=el('div','tr'),f=el('i','fl');tr.appendChild(f);c.appendChild(l);c.appendChild(tr);g.appendChild(c);cols[a[0]]={c:c,f:f};prev[a[0]]=0});
+  w.appendChild(g);
+  w.update=function(){
+    var v=profile();sw.style.background=(S.sel.produce||[]).length?shrubColor():'transparent';
+    AX.forEach(function(a){var k=a[0],c=cols[k];c.f.style.width=Math.round(v[k]*100)+'%';
+      if(Math.abs(v[k]-prev[k])>.01){c.c.classList.remove('bump');void c.c.offsetWidth;c.c.classList.add('bump');clearTimeout(c.t);c.t=setTimeout(function(){c.c.classList.remove('bump')},1100)}prev[k]=v[k]});
+  };
+  return w;
+}
 function stepsDots(i){return topbar(function(){if(S.step>0)go('pick',S.step-1);else go('home')},i)}
 function pick(){
   var st=STEPS[S.step];
@@ -300,6 +325,7 @@ function pick(){
   var hint=el('p','count','');
   var jw=el('div','jarwrap');jw.id='jarwrap';
   var note=el('p','jnote','');
+  var mt=meter('Your shrub so far');
   var g=el('div','chips');
   var nx=btn('','next',function(){
     if(S.step<STEPS.length-1){S.last=null;go('pick',S.step+1)}else{S.last=null;S.shakes=0;go('shake')}
@@ -308,11 +334,11 @@ function pick(){
     var n=(S.sel[st.id]||[]).length;
     nx.disabled=n<st.min;
     nx.textContent=S.step===STEPS.length-1?'Seal the jar':(n===0&&st.min===0?'Skip herbs':'Next');
-    hint.textContent='Drag into the jar, or just tap. Pick '+(st.min?'1':'0')+' to '+st.max+'.'+(allChosen().length&&S.step>0?' Look for Pairs great.':'');
+    hint.textContent='Drag each one into the jar. Pick '+(st.min?'1':'0')+' to '+st.max+'. Tap a checked one to remove it.'+(allChosen().length&&S.step>0?' Look for Pairs great.':'');
   }
   function paint(msg){
-    jw.innerHTML=jarSVG();
-    note.textContent=msg||'';
+    jw.innerHTML=jarSVG({tint:(S.sel.produce||[]).length?.3:0});
+    note.textContent=msg||'';mt.update();
     sync();
   }
   function add(it,how){
@@ -349,7 +375,7 @@ function pick(){
         if(ghost){ghost.remove();ghost=null}
         jw.classList.remove('hot');
         if(cancel)return;
-        if(!moved){if(on)remove(it);else add(it)}
+        if(!moved){if(on)remove(it);else paint('Drag it into the jar.')}
         else if(!on&&overJar(e.clientX,e.clientY))add(it);
       }
       b.addEventListener('pointerup',function(e){end(e,false)});
@@ -359,7 +385,7 @@ function pick(){
     });
     paint(msg);
   }
-  app.appendChild(hint);app.appendChild(jw);app.appendChild(note);app.appendChild(g);app.appendChild(nx);
+  app.appendChild(hint);app.appendChild(jw);app.appendChild(mt);app.appendChild(note);app.appendChild(g);app.appendChild(nx);
   build('');
 }
 function shake(){
@@ -387,6 +413,7 @@ function reveal(){
   var jw=el('div','jarwrap reveal');jw.innerHTML=jarSVG({closed:true,mix:1,noGuide:true,label:true});app.appendChild(jw);
   var t=el('p','sub center','Expect '+jn(c.P.map(function(x){return x.taste}),'and')+(c.H.length?', with '+jn(c.H.map(function(x){return x.taste}),'and')+' notes':'')+'. It will look '+c.look+'.');
   app.appendChild(t);
+  var rm=meter('Your shrub tastes like');app.appendChild(rm);rm.update();
   var pills=el('div','pill center');c.P.concat(c.H,c.Su,c.V).forEach(function(x){pills.appendChild(el('span',null,x.n))});app.appendChild(pills);
   var s=el('div','stack');
   s.appendChild(btn('See my plan and cocktails','',function(){S.tab='jar';go('result')}));
