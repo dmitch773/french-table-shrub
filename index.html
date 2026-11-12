@@ -595,13 +595,10 @@ function cardSVG(){
   o+='<text class="lab" x="540" y="'+(ry+46)+'" text-anchor="middle" font-size="22" letter-spacing="8" fill="#a31d33">THE RECIPE</text>';
   o+='<text x="540" y="'+(ry+80)+'" text-anchor="middle" font-size="23" fill="#34456e">One 16 oz jar, about 1 cup of shrub. Keep the parts equal to make more.</text>';
   var SH={1:'\u00bd cup',2:'\u00bc cup',3:'2\u00bd tbsp',4:'2 tbsp'};
-  var PV={apple:['dice','apple'],pear:['dice','pear'],cranberry:['crush','cranberries'],pomegranate:['crush','pomegranate seeds'],beet:['grate','beet'],carrot:['grate','carrot']},PT={dice:'dice the %, skin on',crush:'lightly crush the %',grate:'peel and grate the %'};
   function grp(list,single,multi){var k=Math.min(list.length,4);return list.length===1?[single||'\u00bd cup',names(list)]:[multi||'\u00bd cup total','Split evenly, '+SH[k]+' each: '+names(list)]}
   var rows=[grp(c.P),grp(c.Su),grp(c.V)];
   if(c.H.length)rows.push(c.H.length===1?['1 to 2 sprigs',names(c.H)]:['1 to 2 sprigs total','Any mix of '+names(c.H)]);
-  var gv={},go2=[];c.P.forEach(function(x){var p=PV[x.k];if(!gv[p[0]]){gv[p[0]]=[];go2.push(p[0])}gv[p[0]].push(p[1])});
-  var prep='Prep the produce: '+go2.map(function(v){return PT[v].replace('%',gv[v].join(' and '))}).join(', ')+'.';
-  var steps=[prep,'Add everything to a clean jar. Seal it and shake until the sugar starts to dissolve.','Keep it in the fridge and shake it once a day.',(c.slow?'Strain on day 7 (Nov 23 for yours), pressing the solids.':'Strain on day 3 to 5 (Nov 19 to 21 for yours), pressing the solids.'),'Bottle the liquid and keep it chilled. Use within 4 weeks.'];
+    var steps=['Add everything to a clean jar. Seal it and shake until the sugar starts to dissolve.','Keep it in the fridge and shake it once a day.',(c.slow?'Strain on day 7 (Nov 23 for yours), pressing the solids.':'Strain on day 3 to 5 (Nov 19 to 21 for yours), pressing the solids.'),'Bottle the liquid and keep it chilled. Use within 4 weeks.'];
   var modes=[[28,34,26,32,60,40],[26,31,24,29,64,44],[24,28,22,26,70,48]],blk='',y=0,m;
   for(var mi=0;mi<modes.length;mi++){
     m=modes[mi];blk='';y=ry+128;
