@@ -594,20 +594,24 @@ function cardSVG(){
   o+='<rect x="140" y="'+ry+'" width="800" height="3" fill="#2f6db5"/>';
   o+='<text class="lab" x="540" y="'+(ry+46)+'" text-anchor="middle" font-size="22" letter-spacing="8" fill="#a31d33">THE RECIPE</text>';
   o+='<text x="540" y="'+(ry+80)+'" text-anchor="middle" font-size="23" fill="#34456e">One 16 oz jar, about 1 cup of shrub. Keep the parts equal to make more.</text>';
-  var hard=c.P.some(function(x){return x.k==='beet'||x.k==='carrot'});
-  var rows=[['\u00bd cup',names(c.P)+(hard?', peeled and grated':', chopped or lightly crushed')],['\u00bd cup',names(c.Su)],['\u00bd cup',names(c.V)]];
-  if(c.H.length)rows.push(['1 to 2 sprigs',names(c.H)]);
-  var y=ry+128;
-  rows.forEach(function(r){var L=wrap(r[1],40);o+='<text class="lab" x="130" y="'+y+'" font-size="28" fill="#a31d33">'+r[0]+'</text>';L.forEach(function(l,m){o+='<text x="330" y="'+(y+m*34)+'" font-size="28" fill="#16254a">'+esc(l)+'</text>'});y+=L.length*34+8});
-  y+=8;
-  var steps=['Add the produce, sugar, vinegar and herbs to a clean jar. Seal it and shake until the sugar starts to dissolve.','Keep it in the fridge and shake it once a day.',(c.slow?'Strain on day 7 (Nov 23 for yours), pressing the solids.':'Strain on day 3 to 5 (Nov 19 to 21 for yours), pressing the solids.'),'Bottle the liquid and keep it chilled. Use within 4 weeks.'];
-  steps.forEach(function(t,k){
-    var L=wrap(t,60);
-    o+='<text class="lab" x="130" y="'+(y+26)+'" font-size="27" fill="#a31d33">'+(k+1)+'</text>';
-    L.forEach(function(l,m){o+='<text x="172" y="'+(y+26+m*32)+'" font-size="26" fill="#34456e">'+esc(l)+'</text>'});
-    y+=L.length*32+10;
-  });
-  var cy=Math.max(y+40,1090);
+  var SH={1:'\u00bd cup',2:'\u00bc cup',3:'2\u00bd tbsp',4:'2 tbsp'};
+  var PV={apple:['dice','apple'],pear:['dice','pear'],cranberry:['crush','cranberries'],pomegranate:['crush','pomegranate seeds'],beet:['grate','beet'],carrot:['grate','carrot']},PT={dice:'dice the %, skin on',crush:'lightly crush the %',grate:'peel and grate the %'};
+  function grp(list,single,multi){var k=Math.min(list.length,4);return list.length===1?[single||'\u00bd cup',names(list)]:[multi||'\u00bd cup total','Split evenly, '+SH[k]+' each: '+names(list)]}
+  var rows=[grp(c.P),grp(c.Su),grp(c.V)];
+  if(c.H.length)rows.push(c.H.length===1?['1 to 2 sprigs',names(c.H)]:['1 to 2 sprigs total','Any mix of '+names(c.H)]);
+  var gv={},go2=[];c.P.forEach(function(x){var p=PV[x.k];if(!gv[p[0]]){gv[p[0]]=[];go2.push(p[0])}gv[p[0]].push(p[1])});
+  var prep='Prep the produce: '+go2.map(function(v){return PT[v].replace('%',gv[v].join(' and '))}).join(', ')+'.';
+  var steps=[prep,'Add everything to a clean jar. Seal it and shake until the sugar starts to dissolve.','Keep it in the fridge and shake it once a day.',(c.slow?'Strain on day 7 (Nov 23 for yours), pressing the solids.':'Strain on day 3 to 5 (Nov 19 to 21 for yours), pressing the solids.'),'Bottle the liquid and keep it chilled. Use within 4 weeks.'];
+  var modes=[[28,34,26,32,60,40],[26,31,24,29,64,44],[24,28,22,26,70,48]],blk='',y=0,m;
+  for(var mi=0;mi<modes.length;mi++){
+    m=modes[mi];blk='';y=ry+128;
+    rows.forEach(function(r){var L=wrap(r[1],m[5]);blk+='<text class="lab" x="130" y="'+y+'" font-size="'+m[0]+'" fill="#a31d33">'+r[0]+'</text>';L.forEach(function(l,k){blk+='<text x="'+(m[0]>=28?350:340)+'" y="'+(y+k*m[1])+'" font-size="'+m[0]+'" fill="#16254a">'+esc(l)+'</text>'});y+=L.length*m[1]+8});
+    y+=8;
+    steps.forEach(function(t,k){var L=wrap(t,m[4]);blk+='<text class="lab" x="130" y="'+(y+m[2])+'" font-size="'+(m[2]+1)+'" fill="#a31d33">'+(k+1)+'</text>';L.forEach(function(l,q){blk+='<text x="172" y="'+(y+m[2]+q*m[3])+'" font-size="'+m[2]+'" fill="#34456e">'+esc(l)+'</text>'});y+=L.length*m[3]+10});
+    if(y<=1100)break;
+  }
+  o+=blk;
+  var cy=Math.max(y+40,1090);if(cy>1150)cy=1150;
   o+='<rect x="140" y="'+(cy-30)+'" width="800" height="3" fill="#c9d3e3"/>';
   o+='<text class="lab" x="540" y="'+(cy+6)+'" text-anchor="middle" font-size="20" letter-spacing="7" fill="#a31d33">MAKE IT WITH GREY GOOSE</text>';
   o+='<text class="pf" x="540" y="'+(cy+46)+'" text-anchor="middle" font-size="36" font-weight="700" fill="#16254a">'+esc(d[0])+'</text>';
