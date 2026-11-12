@@ -3,13 +3,10 @@
 <style>
 /* Layout: app shell. One screen at a time, big tap tiles, auto-advance, result screen with three tabs. */
 :root{
-  --bg:#f3f7fb;--panel:#ffffff;--fg:#16254a;--muted:#52607f;--line:#cfdbe9;--blue:#2f6db5;--red:#a31d33;
-  --on:#16254a;--on-fg:#ffffff;--chip:#e7eef7;
+  --bg:#ffffff;--panel:#ffffff;--fg:#16254a;--muted:#52607f;--line:#cfdbe9;--blue:#2f6db5;--red:#a31d33;
+  --on:#16254a;--on-fg:#ffffff;--chip:#e7eef7;color-scheme:light;
   --head:'Playfair Display',Georgia,'Times New Roman',serif;--body:'Jost','Helvetica Neue',Arial,sans-serif;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0f1830;--panel:#172345;--fg:#eef3fb;--muted:#a6b4d0;--line:#2a3a63;--blue:#7fb0ee;--red:#ee7d92;--on:#eef3fb;--on-fg:#0f1830;--chip:#1f2d55;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0f1830;--panel:#172345;--fg:#eef3fb;--muted:#a6b4d0;--line:#2a3a63;--blue:#7fb0ee;--red:#ee7d92;--on:#eef3fb;--on-fg:#0f1830;--chip:#1f2d55;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:19px;line-height:1.4;
