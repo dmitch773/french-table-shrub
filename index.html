@@ -63,6 +63,12 @@ video{width:100%;max-width:100%;aspect-ratio:16/9;background:#000;border-radius:
 .tab{flex:1;font:inherit;font-size:18px;font-weight:400;color:var(--muted);background:none;border:0;border-radius:10px;min-height:44px;cursor:pointer}
 .tab[aria-selected="true"]{background:var(--on);color:var(--on-fg)}
 .panel{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.rbox{display:flex;flex-direction:column;gap:10px}
+.rrow{display:flex;gap:14px;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.rl{flex:0 0 76px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--red,#a31d33);font-weight:600}
+.rm{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rm b{font-size:20px;color:var(--fg);font-weight:500}
+.rm span{font-size:17px;color:var(--muted)}
 .panel h3{margin:0;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
 .panel p{margin:0}
 ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
@@ -513,6 +519,17 @@ function chosen(){
   return {P:P,H:H,Su:Su,V:V,slow:slow.length>0,slowNames:slow.map(function(x){return x.n}),look:(function(){var best=P[0],bw=-1;P.forEach(function(x){var c=hexRgb(LOOK[x.k]),w=900-c[0]-c[1]-c[2];if(w>bw){bw=w;best=x}});return best.look})(),fit:fit,
     name:P.concat(H).map(function(x){return x.n}).join(' + ')+' Shrub'};
 }
+function recipeBox(c){
+  var SHn={1:'\u00bd cup',2:'\u00bc cup',3:'2\u00bd tbsp',4:'2 tbsp'};
+  function nm(a){return a.map(function(x){return x.n}).join(' + ')}
+  function grp(label,list){var k=Math.min(list.length,4);return list.length===1?[label,'\u00bd cup',nm(list)]:[label,'\u00bd cup total','Split evenly, '+SHn[k]+' each: '+nm(list)]}
+  var rows=[grp('Produce',c.P),grp('Sugar',c.Su),grp('Vinegar',c.V)];
+  if(c.H.length)rows.push(c.H.length===1?['Herbs','1 to 2 sprigs',nm(c.H)]:['Herbs','1 to 2 sprigs total','Any mix of '+nm(c.H)]);
+  var w=el('div','rbox');
+  rows.forEach(function(r){var d=el('div','rrow');d.appendChild(el('span','rl',r[0]));var m=el('span','rm');m.appendChild(el('b',null,r[1]));m.appendChild(el('span',null,r[2]));d.appendChild(m);w.appendChild(d)});
+  w.appendChild(el('p','muted','One 16 oz jar, about 1 cup of shrub. Keep the parts equal to make more.'));
+  return w;
+}
 function result(){
   var c=chosen();
   var days=c.slow?'7':'3 to 5';
@@ -531,7 +548,7 @@ function result(){
     pn.appendChild(el('h3',null,'How it tastes'));
     pn.appendChild(el('p',null,'Expect '+jn(c.P.map(function(x){return x.taste}),'and')+(c.H.length?', with '+jn(c.H.map(function(x){return x.taste}),'and')+' notes':'')+'. Sugar: '+jn(c.Su.map(function(x){return x.n.toLowerCase()+' for '+x.taste}),'and')+'. Vinegar: '+jn(c.V.map(function(x){return x.n.toLowerCase()+', '+x.taste}),'and')+'. Color: '+c.look+'.'));
     pn.appendChild(el('h3',null,'In your 16 oz jar'));
-    pn.appendChild(el('p',null,'Equal parts produce, sugar and vinegar. Split each part evenly between your picks: '+jn(c.P.map(function(x){return x.n.toLowerCase()}),'and')+', '+jn(c.Su.map(function(x){return x.n.toLowerCase()}),'and')+' and '+jn(c.V.map(function(x){return x.n.toLowerCase()}),'and')+(c.H.length?', plus a few sprigs of '+jn(c.H.map(function(x){return x.n.toLowerCase()}),'and'):'')+'.'));
+    pn.appendChild(recipeBox(c));
     pn.appendChild(el('h3',null,'What to do'));
     var ol=el('ol');['Seal the jar and keep it in the fridge.','Shake it once a day.','Strain on day '+days+', pressing the solids.'+(c.slow?' '+jn(c.slowNames,'and')+' need the full 7 days.':''),'Pour it back into the clean jar.'].forEach(function(x){ol.appendChild(el('li',null,x))});pn.appendChild(ol);
   }else if(S.tab==='store'){
