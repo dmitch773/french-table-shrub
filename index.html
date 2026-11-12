@@ -92,14 +92,21 @@ ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
 .jnote{min-height:2.5em;margin:0;text-align:center;font-size:16px;color:var(--blue);line-height:1.3}
 .center{text-align:center;justify-content:center;align-items:center}
 .jarbtn{background:none;border:0;padding:0;margin:0 auto;width:min(70vw,300px);cursor:pointer;color:var(--fg);display:block}
-.shaking{animation:shk .6s}
-@keyframes shk{0%,100%{transform:none}15%{transform:translate(-10px,-6px) rotate(-8deg)}30%{transform:translate(10px,4px) rotate(8deg)}45%{transform:translate(-8px,-4px) rotate(-6deg)}60%{transform:translate(8px,3px) rotate(6deg)}80%{transform:translate(-3px,0) rotate(-2deg)}}
+.shaking{animation:shk 1.1s}
+.shaking.big{animation:shk 1.7s}
+@keyframes shk{0%,100%{transform:none}6%{transform:translate(-26px,-12px) rotate(-17deg)}13%{transform:translate(24px,10px) rotate(17deg)}20%{transform:translate(-24px,-10px) rotate(-15deg)}27%{transform:translate(24px,8px) rotate(15deg)}34%{transform:translate(-20px,-8px) rotate(-13deg)}41%{transform:translate(20px,7px) rotate(13deg)}49%{transform:translate(-16px,-6px) rotate(-10deg)}57%{transform:translate(16px,5px) rotate(10deg)}66%{transform:translate(-11px,-3px) rotate(-6deg)}76%{transform:translate(8px,2px) rotate(4deg)}88%{transform:translate(-3px,0) rotate(-1.5deg)}}
+.shaking .chunk{animation:jig .09s infinite alternate}
+@keyframes jig{from{transform:translate(-7px,-5px)}to{transform:translate(7px,6px)}}
+.bub{animation:bubup 4s ease-in-out infinite;transform-box:fill-box}
+@keyframes bubup{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-14px);opacity:.15}}
+.shine{animation:shn 2.4s ease-out .5s 1 both}
+@keyframes shn{from{transform:translateX(0) skewX(-20deg)}to{transform:translateX(520px) skewX(-20deg)}}
 .shbar{height:10px;background:var(--line);border-radius:999px;overflow:hidden;width:min(70vw,300px);margin:0 auto}
 .shbar i{display:block;height:100%;background:var(--red);transition:width .3s;width:0}
 .jarwrap.reveal{animation:popin .7s cubic-bezier(.3,1.4,.5,1);width:min(64vw,260px)}
 @keyframes popin{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
 a.btn{display:flex;align-items:center;justify-content:center;text-decoration:none}
-@media (prefers-reduced-motion:reduce){.lay.new,.chunk.new,.shaking,.jarwrap.reveal{animation:none}}
+@media (prefers-reduced-motion:reduce){.lay.new,.chunk.new,.shaking,.shaking .chunk,.jarwrap.reveal,.bub,.shine{animation:none}}
 .share{background:var(--panel);border:2px solid var(--blue);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;text-align:center}.share p{margin:0;font-size:17px}
 .chip .pg{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--red);line-height:1}
 .meterbox{display:flex;flex-direction:column;gap:6px}
@@ -251,6 +258,13 @@ var LISTS=[PRODUCE,HERBS,SUGARS,VINS];
 var LOOK={apple:'#e8cf7e',pear:'#dccb7c',cranberry:'#b3203a',pomegranate:'#c2405e',beet:'#7d1f4d',carrot:'#e39a3d'};
 function itemOf(k){var r=null;LISTS.forEach(function(l){var f=find(l,k);if(f)r=f});return r}
 function hexRgb(h){h=h.replace('#','');return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)]}
+function shrubRGB(){
+  var P=(S.sel.produce||[]),V=(S.sel.vinegar||[]);
+  if(!P.length)return [232,207,126];
+  var a=[0,0,0],tw=0,ws=P.map(function(k){var c=hexRgb(LOOK[k]);var w=900-c[0]-c[1]-c[2];tw+=w;return w});P.forEach(function(k,j){var c=hexRgb(LOOK[k]);for(var i=0;i<3;i++)a[i]+=c[i]*ws[j]/tw});
+  if(V.length){var v=hexRgb(itemOf(V[0]).c);for(var j=0;j<3;j++)a[j]=a[j]*.82+v[j]*.18}
+  return a.map(Math.round);
+}
 function shrubColor(){
   var P=(S.sel.produce||[]),V=(S.sel.vinegar||[]);
   if(!P.length)return '#e8cf7e';
@@ -316,6 +330,27 @@ function meter(title){
       if(Math.abs(v[k]-prev[k])>.01){c.c.classList.remove('bump');void c.c.offsetWidth;c.c.classList.add('bump');clearTimeout(c.t);c.t=setTimeout(function(){c.c.classList.remove('bump')},1100)}prev[k]=v[k]});
   };
   return w;
+}
+
+function shade(a,f){return 'rgb('+a.map(function(x){return Math.max(0,Math.min(255,Math.round(f>=0?x+(255-x)*f:x*(1+f))))}).join(',')+')'}
+function shrubSVG(){
+  var c=shrubRGB(),top=shade(c,.28),mid=shade(c,0),bot=shade(c,-.32),i;
+  var s='<svg viewBox="0 0 300 430" role="img" aria-label="Your finished shrub" class="jarsvg"><defs>';
+  s+='<linearGradient id="lq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+top+'"/><stop offset=".45" stop-color="'+mid+'"/><stop offset="1" stop-color="'+bot+'"/></linearGradient>';
+  s+='<linearGradient id="gl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".25"/></linearGradient>';
+  s+='<clipPath id="bc"><path d="M112 66 H188 V112 Q188 140 214 158 Q250 182 250 226 V382 Q250 408 224 408 H76 Q50 408 50 382 V226 Q50 182 86 158 Q112 140 112 112 Z"/></clipPath></defs>';
+  s+='<ellipse cx="150" cy="414" rx="110" ry="10" fill="#000" opacity=".12"/>';
+  s+='<g clip-path="url(#bc)"><rect x="40" y="132" width="220" height="290" fill="url(#lq)"/>';
+  s+='<ellipse cx="150" cy="132" rx="38" ry="6" fill="'+shade(c,.5)+'" opacity=".75"/>';
+  for(i=0;i<9;i++){var bx=70+(i*53)%160,by=190+(i*71)%190;s+='<circle class="bub" style="animation-delay:'+(i*.35)+'s" cx="'+bx+'" cy="'+by+'" r="'+(2+i%3*1.6)+'" fill="#fff" opacity=".45"/>'}
+  s+='<rect x="64" y="170" width="22" height="210" rx="11" fill="url(#gl)" opacity=".9"/>';
+  s+='<rect x="212" y="200" width="9" height="150" rx="4.5" fill="#fff" opacity=".35"/>';
+  s+='<rect class="shine" x="-120" y="120" width="60" height="300" fill="#fff" opacity=".35" transform="skewX(-20)"/>';
+  s+='</g>';
+  s+='<path d="M112 66 H188 V112 Q188 140 214 158 Q250 182 250 226 V382 Q250 408 224 408 H76 Q50 408 50 382 V226 Q50 182 86 158 Q112 140 112 112 Z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>';
+  s+='<rect x="104" y="52" width="92" height="20" rx="6" fill="#2b3a63" stroke="currentColor" stroke-width="4"/><rect x="118" y="26" width="64" height="30" rx="8" fill="#b88a55" stroke="currentColor" stroke-width="4"/>';
+  s+='<rect x="86" y="250" width="128" height="68" rx="5" fill="#fffaf0" stroke="#2b3a63" stroke-width="2.5"/><text x="150" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#2b3a63" font-family="Tinos,serif" letter-spacing="2">SHRUB</text><text x="150" y="304" text-anchor="middle" font-size="11" fill="#a31d33" font-family="Tinos,serif" letter-spacing="1">THE FRENCH TABLE</text>';
+  return s+'</svg>';
 }
 function stepsDots(i){return topbar(function(){if(S.step>0)go('pick',S.step-1);else go('home')},i)}
 function pick(){
@@ -401,7 +436,8 @@ function shake(){
     S.shakes=(S.shakes||0)+1;
     jb.classList.remove('shaking');void jb.offsetWidth;jb.classList.add('shaking');
     paint();
-    if(S.shakes>=3)setTimeout(function(){go('reveal')},900);
+    try{if(navigator.vibrate)navigator.vibrate(S.shakes>=3?[60,40,60,40,90]:[50,30,50])}catch(x){}
+    if(S.shakes>=3){jb.classList.add('big');setTimeout(function(){go('reveal')},1900)}
   });
   app.appendChild(cnt);app.appendChild(jb);app.appendChild(bar);
   paint();
@@ -410,8 +446,9 @@ function reveal(){
   var c=chosen();
   app.appendChild(topbar(function(){S.shakes=0;go('pick',3)}));
   var head=el('div','stack center');head.appendChild(el('div','eyebrow','Your shrub'));head.appendChild(el('h2',null,c.name));app.appendChild(head);
-  var jw=el('div','jarwrap reveal');jw.innerHTML=jarSVG({closed:true,mix:1,noGuide:true,label:true});app.appendChild(jw);
-  var t=el('p','sub center','Expect '+jn(c.P.map(function(x){return x.taste}),'and')+(c.H.length?', with '+jn(c.H.map(function(x){return x.taste}),'and')+' notes':'')+'. It will look '+c.look+'.');
+  var jw=el('div','jarwrap reveal');jw.innerHTML=shrubSVG();app.appendChild(jw);
+  var pf=profile(),ord=AX.slice().sort(function(a,b){return pf[b[0]]-pf[a[0]]}).filter(function(a){return pf[a[0]]>.2}),topA=ord.slice(0,3).map(function(a){return a[1].toLowerCase()}),hint=ord.slice(3).map(function(a){return a[1].toLowerCase()});
+  var t=el('p','sub center','Expect '+jn(topA,'and')+(hint.length?', with a hint of '+jn(hint,'and'):'')+'. It will look '+c.look+'.');
   app.appendChild(t);
   var rm=meter('Your shrub tastes like');app.appendChild(rm);rm.update();
   var pills=el('div','pill center');c.P.concat(c.H,c.Su,c.V).forEach(function(x){pills.appendChild(el('span',null,x.n))});app.appendChild(pills);
